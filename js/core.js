@@ -8,8 +8,10 @@ export const duration = seconds => {
 };
 export const secondsSince = date => Math.max(0, (Date.now() - new Date(date).getTime()) / 1000);
 export function integer(value, minimum = 0, maximum = 1000000) {
-  if (value === '' || value == null || !Number.isSafeInteger(Number(value)) || Number(value) < minimum || Number(value) > maximum) throw new Error(`Bitte eine ganze Zahl zwischen ${number(minimum)} und ${number(maximum)} eingeben.`);
-  return Number(value);
+  const raw = typeof value === 'string' ? value.trim() : value;
+  const text = String(raw ?? '');
+  if (text === '' || !/^-?[0-9]+$/.test(text) || !Number.isSafeInteger(Number(text)) || Number(text) < minimum || Number(text) > maximum) throw new Error(`Bitte eine ganze Zahl zwischen ${number(minimum)} und ${number(maximum)} eingeben.`);
+  return Number(text);
 }
 export function dropProbability(p, n) {
   if (!Number.isFinite(p) || p < 0 || p > 1 || !Number.isSafeInteger(n) || n < 0) throw new Error('Ungültige Wahrscheinlichkeit oder Truhenzahl.');
@@ -18,8 +20,12 @@ export function dropProbability(p, n) {
   return -Math.expm1(n * Math.log1p(-p));
 }
 export function requiredChests(p, target) {
+  if (!Number.isFinite(p) || p < 0 || p > 1) throw new Error('Ungültige Wahrscheinlichkeit.');
+  if (!Number.isFinite(target) || target < 0 || target > 1) throw new Error('Die Zielwahrscheinlichkeit muss zwischen 0 und 1 liegen.');
   if (p <= 0) return Infinity;
   if (p >= 1) return 1;
+  if (target <= 0) return 0;
+  if (target >= 1) return 1;
   return Math.ceil(Math.log1p(-target) / Math.log1p(-p));
 }
 export function nextMilestone(total) {
